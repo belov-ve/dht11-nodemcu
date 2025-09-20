@@ -8,7 +8,7 @@ local d_temp = 0
 local d_humi = 10
 
 -- допустимый интервал опроса сенсора (в мс)
-local readTime = 500
+local readTime = 1000
 local tempMin = 0
 local tempMax = 50
 local humiMin = 20
@@ -69,7 +69,7 @@ tmr.create():alarm(iterCount * readTime * 2, tmr.ALARM_AUTO, function(t)
 
                 local status, temp, humi, temp_dec, humi_dec = dht.read(pin)
 
-                --[[
+
                 if status == dht.OK then
                     --print(string.format("\t\ttemp: %g \thumi: %g \ttemp_dec: %g\thumi_dec: %g", temp, humi, temp_dec, humi_dec))
                 elseif status == dht.ERROR_CHECKSUM then
@@ -79,7 +79,7 @@ tmr.create():alarm(iterCount * readTime * 2, tmr.ALARM_AUTO, function(t)
                 else
                     print("\tUnknown sensor read error")
                 end
-                --]]
+
 
                 if status == dht.OK and
                         temp >= tempMin and temp <= tempMax and
@@ -117,7 +117,7 @@ tmr.create():alarm(iterCount * readTime * 2, tmr.ALARM_AUTO, function(t)
                         if data.temp[j] then
                             count = (count or 0) + 1
                             _t = (_t or 0) + data.temp[j]
-                            _h = (_h or 0) + data .humi[j]
+                            _h = (_h or 0) + data.humi[j]
                         end
                     end
 
