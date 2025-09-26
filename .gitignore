@@ -40,3 +40,4 @@ luac.out
 *.hex
 
 lua/esp.cfg.json
+lua/esp.cfg
