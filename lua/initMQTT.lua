@@ -1,6 +1,6 @@
 --[[
  Скрипт загрузки конфигурации и подключения к MQTT брокеру
- ver 2.0
+ ver 2.1
 --]]
 
 CF = require "comfun"
@@ -24,7 +24,7 @@ do
                 (Config.sleeptime < Config.mqtt.interval and Config.sleeptime or Config.mqtt.interval) or
                 Config.sleeptime or Config.mqtt.interval
             keepalive = _t and (_t + 60) or keepalive    -- время до lwt=offline (сон + минуту на первую публикацию) или по умолчанию
-            print("keepalive = " .. keepalive)          -- test
+            -- print("keepalive = " .. keepalive)          -- test
 
             -- Список адресов для подключения (при каждом обращении следующий по порядку)
             local mqttGetServer = CF.getNext(Config.mqtt.server)
@@ -66,6 +66,7 @@ do
                     if data ~= nil then
                         print("\t"..data)
 
+                        --[[ Отключить, если данные от MQTT не получаем
                         data = string.lower(data)
                         do
                             local needsave
@@ -100,6 +101,7 @@ do
                             end
 
                         end
+                        --]]
 
                     end
 
@@ -119,12 +121,14 @@ do
 
                         --- Подпись на топики
                         local _topics = {}
+                        --[[ Отключить, если данные от MQTT не получаем
                         -- switch
                         if Config.mqtt.switch and type(Config.mqtt.switch)=="table" then
                             for i,v in pairs(Config.mqtt.switch) do
                                 _topics[v] = QoS
                             end
                         end
+                        --]]
                         -- Если топики есть подписываемся
                         local _contMQTT = (not next(_topics)) or MQTT:subscribe(_topics)
 
@@ -141,7 +145,7 @@ do
                             -- публикация state устройства
                             CF.doluafile("publishMQTT")
 
-                            -- создаем периодичный таймер пубикации. настройка и запуск
+                            -- создаем периодичный таймер публикации. настройка и запуск
                             _tmrPubl:alarm(interval * 1000, tmr.ALARM_AUTO, function() CF.doluafile("publishMQTT") end)
                         else
                             print("Subscribe failed")
