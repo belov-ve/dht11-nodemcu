@@ -39,3 +39,5 @@ luac.out
 *.x86_64
 *.hex
 
+lua/esp.cfg.json
+lua/esp.cfg

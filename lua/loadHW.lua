@@ -1,6 +1,6 @@
 --[[
  Описание аппаратной конфигурации
- ver 3.1
+ ver 3.2
 --]]
 
 -- Кнопки
@@ -29,6 +29,6 @@ Switch = {
 -- Датчики
 ---[[
 Sensor = {
-    {pin=7, name="dht-11", time=500, tempMin=0, tempMax=50, humiMin=20, humiMax=80, mode=gpio.INPUT}
+    {pin=7, name="dht-11", time=1000, tempMin=0, tempMax=52, humiMin=15, humiMax=95, mode=gpio.INPUT}
 }
 --]]

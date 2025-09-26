@@ -1,6 +1,6 @@
 --[[
  Обратока сенсоров DHT
- ver 1.0
+ ver 1.1
 --]]
 
 CF = require "comfun"
@@ -21,43 +21,40 @@ do
 
     -----------------------
 
-        for i, val in pairs(Sensor) do
+        for sid, val in pairs(Sensor) do
 
-            if Sensor[i].name and CF.findInTable({"dht-11","dht-22"},Sensor[i].name) then
+            if Sensor[sid].name and CF.findInTable({"dht-11","dht-22"},Sensor[sid].name) then
 
                 -- значения по умолчанию для DHT-11
-                local readTime = Sensor[i].time or 1000     -- допустимая частота опроса (мс)
-                local tempMin = Sensor[i].tempMin or 0      -- минимальная температура
-                local tempMax = Sensor[i].tempMax or 50     -- максимальная температура
-                local humiMin = Sensor[i].humiMin or 20     -- минимальная влажность
-                local humiMax = Sensor[i].humiMax or 80     -- максимальная влажность
+                local readTime = Sensor[sid].time   -- допустимая частота опроса (мс)
+                local tempMin = Sensor[sid].tempMin -- минимальная температура
+                local tempMax = Sensor[sid].tempMax -- максимальная температура
+                local humiMin = Sensor[sid].humiMin -- минимальная влажность
+                local humiMax = Sensor[sid].humiMax -- максимальная влажность
 
                 -- Корректировка показаний сенсора
-                local d_temp = (Config.sensor[i] and Config.sensor[i].temp and Config.sensor[i].temp.calibration) or 0
-                local d_humi = (Config.sensor[i] and Config.sensor[i].humi and Config.sensor[i].humi.calibration) or 0
+                local d_temp = (Config.sensor[sid] and Config.sensor[sid].temp and Config.sensor[sid].temp.calibration) or 0
+                local d_humi = (Config.sensor[sid] and Config.sensor[sid].humi and Config.sensor[sid].humi.calibration) or 0
 
-                -- Интервал опроса датчика (mc)
-                local timeReadDHT = iterCount * readTime * 10    -- или задать нужное значение
-
-                -- if Config.mqtt and Config.mqtt.enable and Config.mqtt.interval then
-                --     timeReadDHT = Config.mqtt.interval * 60 * 1000
-                -- end
+                -- Интервал получений итоговых измерений датчика (мс)
+                -- local timeReadDHT = iterCount * readTime * 10    -- или задать нужное значение
+                local timeReadDHT = 60000
 
                 -- Получение среднеарифмитического значения сенсора DHT
-                ---- Итерационная функция сбора показаний сенсора
+                ---- Итерационная функция сбора показаний сенсора на pin
                 local function _readDHT (pin)
                     -- print("Initial function _readDHT. DHT pin - "..pin)
                     local i = 0
                     local data = {temp = {}, humi = {}}
                     return function()
                         i = ( i >= iterCount ) and 1 or i + 1
-                        --print("\tRun function _readDHT. Ineration - "..i)
+                        --print("\tRun function _readDHT. Iteration - "..i)
 
                         local status, temp, humi, temp_dec, humi_dec = dht.read(pin)
 
-                        --[[
+                        ---[[
                         if status == dht.OK then
-                            --print(string.format("\t\ttemp: %g \thumi: %g \ttemp_dec: %g\thumi_dec: %g", temp, humi, temp_dec, humi_dec))
+                            print(string.format("\t\tSensor pin: %g \tCycle: %g \ttemp: %g \thumi: %g \ttemp_dec: %g\thumi_dec: %g", pin, i, temp, humi, temp_dec, humi_dec))
                         elseif status == dht.ERROR_CHECKSUM then
                             print("\tSensor read error: ERROR_CHECKSUM")
                         elseif status == dht.ERROR_TIMEOUT then
@@ -67,13 +64,21 @@ do
                         end
                         --]]
 
+                        --[[ for debug
+                        if not (status == dht.OK) then print("status fail") end
+                        if not (temp >= tempMin and temp <= tempMax) then print("temp fail") end
+                        if not (humi >= humiMin and humi <= humiMax) then print("humi fail") end
+                        --]]
+
                         if status == dht.OK and
-                                temp >= tempMin and temp <= tempMax and
-                                humi >= humiMin and humi <= humiMax then
+                            temp >= tempMin and temp <= tempMax and
+                            humi >= humiMin and humi <= humiMax
+                        then
                             data.temp[i] = temp
                             data.humi[i] = humi
                         end
 
+                        -- print("function _readDHT i="..i)
                         return i, data
                     end
                 end
@@ -91,27 +96,27 @@ do
                         local count, _t, _h
 
                         for j = 1, i do
-                            if data.temp[j] then
+                            if data.temp[j] and data.humi[j] then
                                 count = (count or 0) + 1
                                 _t = (_t or 0) + data.temp[j]
                                 _h = (_h or 0) + data.humi[j]
                             end
-                        end
-
-                        if count then
-                            _t = round( _t/count, 1) + d_temp
-                            _h = round( _h/count, 1) + d_humi
+                            -- print(string.format("\t\t averege i: %s \tj: %s \tcount: %s ", i, j, tostring(count) or "nil"))  -- for debug
                         end
                         ----
 
                         -- Сохранение результата
                         if count then
+                            -- округление с учетом корректировки
+                            _t = round( _t/count, 1) + d_temp
+                            _h = round( _h/count, 1) + d_humi
+
                             -- print(string.format("Average DHT Temp: %g \tHumi: %g", _t, _h))
                             State.sensor[sensorID] = {}
                             State.sensor[sensorID].temp = _t
                             State.sensor[sensorID].humi = _h
                         else
-                            print("Sensor read error")
+                            print("In Function averDHT: Sensor no data")
                         end
 
                     else
@@ -120,11 +125,11 @@ do
                 end
 
                 -- итерационная функция
-                local readDHT = _readDHT(Sensor[i].pin)
-                averDHT(readDHT, i)    -- сразу получить значение сенсора
+                local readDHT = _readDHT(Sensor[sid].pin)
+                averDHT(readDHT, sid)    -- сразу получить значение сенсора
 
                 -- регистрация таймера периодического получения данных сенсора dht ()
-                tmr.create():alarm(timeReadDHT, tmr.ALARM_AUTO, function() averDHT(readDHT, i) end)
+                tmr.create():alarm(timeReadDHT, tmr.ALARM_AUTO, function() averDHT(readDHT, sid) end)
             end
 
         end

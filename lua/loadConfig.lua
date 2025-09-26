@@ -13,7 +13,7 @@ CF = require "comfun"
 Conf_file = "esp.cfg"       -- имя файла конфигурации
 Config = {}                 -- глобальный массив параметров конфигурации
 Model = "NodeMCU DHT Sensor (DHT-11)"
-ModelVersion = "ver:1.0"
+ModelVersion = "ver:1.1"
 ModelManufacturer = "BVE"
 
 
@@ -25,55 +25,55 @@ do
         ----- default config -----
         local sj = [[
         {
-            "mode": "st",
-            "sleep": true,
-            "sensor": [
-                {
-                    "temp": {
-                        "unit_of_measurement": "°C",
-                        "device_class": "temperature",
-                        "calibration": 0,
-                        "icon": "mdi:thermometer-plus"
-                    },
-                    "humi": {
-                        "unit_of_measurement": "RH(%)",
-                        "device_class": "humidity",
-                        "calibration": 10,
-                        "icon": "mdi:water-percent"
-                    }
-                }
-            ],
-            "network": {
-                "ap": {
-                    "setphymode": "PHYMODE_G",
-                    "pwd": "",
-                    "auth": "",
-                    "ip": "192.168.4.1",
-                    "netmask": "255.255.255.0",
-                    "gateway": "192.168.4.1"
+        "mode": "st",
+        "sleep": true,
+        "sensor": [
+            {
+                "temp": {
+                    "unit_of_measurement": "°C",
+                    "device_class": "temperature",
+                    "calibration": 0,
+                    "icon": "mdi:thermometer-plus"
                 },
-                "sta": {
-                    "setphymode": "PHYMODE_G",
-                    "ssid": "Asus-Home_7-1_2.4",
-                    "pwd": "xxxxxxxx",
-                    "dhcp": true,
-                    "ip": "192.168.225.99",
-                    "netmask": "255.255.255.0",
-                    "gateway": "192.168.225.1"
+                "humi": {
+                    "unit_of_measurement": "%",
+                    "device_class": "humidity",
+                    "calibration": 10,
+                    "icon": "mdi:water-percent"
                 }
-            },
-            "mqtt": {
-                "enable": true,
-                "interval": 300,
-                "server": ["192.168.225.3", "192.168.225.4", "belov.duckdns.org"],
-                "port": "1883",
-                "user": "mqtt",
-                "pwd": "MQTT!User"
-            },
-            "ha": {
-                "enable": false,
-                "discovery_prefix": "homeassistant"
             }
+        ],
+        "network": {
+            "ap": {
+                "setphymode": "PHYMODE_G",
+                "pwd": "",
+                "auth": "",
+                "ip": "192.168.4.1",
+                "netmask": "255.255.255.0",
+                "gateway": "192.168.4.1"
+            },
+            "sta": {
+                "setphymode": "PHYMODE_G",
+                "ssid": "xxxxxxxxx_2.4",
+                "pwd": "xxxxxxxxx",
+                "dhcp": true,
+                "ip": "192.168.225.99",
+                "netmask": "255.255.255.0",
+                "gateway": "192.168.225.1"
+            }
+        },
+        "mqtt": {
+            "enable": true,
+            "interval": 300,
+            "server": ["192.168.225.3", "192.168.225.4", "belov.duckdns.org"],
+            "port": "1883",
+            "user": "xxxxxxxxx",
+            "pwd": "xxxxxxxxx"
+        },
+        "ha": {
+            "enable": false,
+            "discovery_prefix": "homeassistant"
+        }
         }
         ]]
         ------------------
@@ -153,7 +153,7 @@ do
         local p1,p2 = node.bootreason()
         if p2 ~= 4 and p2 ~= 5 then  -- 4 software restart, 5 wake from deep sleep
             Config.mode = "ap"
-            tmr.create():alarm(30*1000, tmr.ALARM_AUTO, function () node.restart() end)
+            tmr.create():alarm(60*1000, tmr.ALARM_AUTO, function () node.restart() end) -- пауза ожидания 60 секунд
         end
         print(string.format("Load in: '%s'\tbootreason = %u, %u", Config.mode, p1, p2))
     end

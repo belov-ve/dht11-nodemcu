@@ -1,6 +1,6 @@
 --[[
  Инициализация переключателей, кнопок и индикаторов управления
- ver 3.1
+ ver 3.2
 --]]
 
 CF = require "comfun"
@@ -56,12 +56,12 @@ do
             gpio.mode(val.pin, val.mode);
         end
 
-        -- вызов обработчика кнопок
+        -- вызов обработчика сенсоров
         CF.doluafile("sensorDHT")
     end
     --]]
 
-    ---[[ Кнопки
+    --[[ Кнопки
     if Btn and type(Btn)=="table" then
 
         -- Инициализация

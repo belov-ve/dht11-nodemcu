@@ -83,7 +83,7 @@ do
             print("No valid state file found. Create new")
             State = createState(State_file)    -- сохранение в файл конфигурации по умолчанию
         else
-            State = createState()    -- сохранение в файл конфигурации по умолчанию
+            State = createState()    -- создание нового файла состояний без сохранения в файл
         end
 
     end
