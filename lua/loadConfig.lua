@@ -54,8 +54,8 @@ do
             },
             "sta": {
                 "setphymode": "PHYMODE_G",
-                "ssid": "Asus-Home_7-1_2.4",
-                "pwd": "3jv84zzsvo55vzr3",
+                "ssid": "xxxxxxxxx_2.4",
+                "pwd": "xxxxxxxxx",
                 "dhcp": true,
                 "ip": "192.168.225.99",
                 "netmask": "255.255.255.0",
@@ -67,8 +67,8 @@ do
             "interval": 300,
             "server": ["192.168.225.3", "192.168.225.4", "belov.duckdns.org"],
             "port": "1883",
-            "user": "mqtt",
-            "pwd": "MQTT!User"
+            "user": "xxxxxxxxx",
+            "pwd": "xxxxxxxxx"
         },
         "ha": {
             "enable": false,
