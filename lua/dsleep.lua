@@ -31,7 +31,7 @@ do
                 (Config.sleeptime < Config.mqtt.interval and Config.sleeptime or Config.mqtt.interval) or
                 Config.sleeptime or Config.mqtt.interval or 5*60    -- спать указанное время или 5 минут по умолчанию
 
-            -- проверка на безусловное отключение через 1 минуту (по умолчанию)
+            -- проверка на безусловное отключение через 1 минуту (по умолчанию disableTime)
             _i = _i + 1
             if _i >= disableTime/chkTime then
                 -- конфигурация загружена. отключение разрешено
