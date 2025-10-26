@@ -1,6 +1,6 @@
 --[[
  Описание аппаратной конфигурации
- ver 3.2
+ ver 3.3
 --]]
 
 -- Кнопки
@@ -27,6 +27,14 @@ Switch = {
 --]]
 
 -- Датчики
+-- Встроенный датчик напряжения питания
+---[[
+if adc.force_init_mode(adc.INIT_VDD33)
+then
+  node.restart()
+  return -- Требуется перезагрузка для активации
+end
+--]]
 ---[[
 Sensor = {
     {pin=7, name="dht-11", time=1000, tempMin=0, tempMax=52, humiMin=15, humiMax=95, mode=gpio.INPUT}
