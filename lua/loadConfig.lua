@@ -1,6 +1,6 @@
 --[[
  Скрипт загрузки параметров модуля из файла конфигурации
- ver 2.1
+ ver 2.2
 --]]
 
 --[[ библиотеки для отладки на ББ
@@ -13,7 +13,7 @@ CF = require "comfun"
 Conf_file = "esp.cfg"       -- имя файла конфигурации
 Config = {}                 -- глобальный массив параметров конфигурации
 Model = "NodeMCU DHT Sensor (DHT-11)"
-ModelVersion = "ver:1.1"
+ModelVersion = "ver:1.2"
 ModelManufacturer = "BVE"
 
 
@@ -26,7 +26,7 @@ do
         local sj = [[
         {
         "mode": "st",
-        "sleep": true,
+        "sleep": false,
         "sensor": [
             {
                 "temp": {
@@ -39,6 +39,16 @@ do
                     "unit_of_measurement": "%",
                     "device_class": "humidity",
                     "calibration": 10,
+                    "icon": "mdi:water-percent"
+                }
+                "adcp": {
+                    "unit_of_measurement": "%",
+                    "device_class": "battery",
+                    "icon": "mdi:water-percent"
+                }
+                "adcv": {
+                    "unit_of_measurement": "mV",
+                    "device_class": "voltage",
                     "icon": "mdi:water-percent"
                 }
             }
@@ -54,8 +64,8 @@ do
             },
             "sta": {
                 "setphymode": "PHYMODE_G",
-                "ssid": "xxxxxxxxx_2.4",
-                "pwd": "xxxxxxxxx",
+                "ssid": "Asus-Home_7-1_2.4",
+                "pwd": ".........",
                 "dhcp": true,
                 "ip": "192.168.225.99",
                 "netmask": "255.255.255.0",
@@ -67,8 +77,8 @@ do
             "interval": 300,
             "server": ["192.168.225.3", "192.168.225.4", "belov.duckdns.org"],
             "port": "1883",
-            "user": "xxxxxxxxx",
-            "pwd": "xxxxxxxxx"
+            "user": "mqtt",
+            "pwd": "........."
         },
         "ha": {
             "enable": false,

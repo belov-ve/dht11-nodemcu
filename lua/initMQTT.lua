@@ -1,9 +1,10 @@
 --[[
  Скрипт загрузки конфигурации и подключения к MQTT брокеру
- ver 2.1
+ ver 2.2
 --]]
 
 CF = require "comfun"
+
 
 do
     if Config and Config.mode == "st" then
@@ -16,15 +17,15 @@ do
         local interval = 300            -- период публикации состояния в mqtt (сек)
 
 
-        if Config and Config.mqtt and Config.mqtt.enable and Config.mqtt.server then
+        if Config.mqtt and Config.mqtt.enable and Config.mqtt.server then
 
-            if Config.mqtt.interval then interval = Config.mqtt.interval end    -- период публикации в секундах (из конфигурации)
+            interval = Config.mqtt.interval or interval         -- период публикации в секундах (из конфигурации)
 
-            local _t = (Config.sleeptime and Config.mqtt.interval) and
-                (Config.sleeptime < Config.mqtt.interval and Config.sleeptime or Config.mqtt.interval) or
-                Config.sleeptime or Config.mqtt.interval
+            local _t = (Config.sleeptime and interval) and
+                (Config.sleeptime < interval and Config.sleeptime or interval) or
+                Config.sleeptime or interval
             keepalive = _t and (_t + 60) or keepalive    -- время до lwt=offline (сон + минуту на первую публикацию) или по умолчанию
-            -- print("keepalive = " .. keepalive)          -- test
+            --print("keepalive = " .. keepalive)         -- test
 
             -- Список адресов для подключения (при каждом обращении следующий по порядку)
             local mqttGetServer = CF.getNext(Config.mqtt.server)
