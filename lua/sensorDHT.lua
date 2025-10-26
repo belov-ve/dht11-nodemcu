@@ -36,9 +36,6 @@ do
                 local d_temp = (Config.sensor[sid] and Config.sensor[sid].temp and Config.sensor[sid].temp.calibration) or 0
                 local d_humi = (Config.sensor[sid] and Config.sensor[sid].humi and Config.sensor[sid].humi.calibration) or 0
 
-                -- Интервал получений итоговых измерений датчика (мс)
-                -- local timeReadDHT = iterCount * readTime * 10    -- или задать нужное значение
-                local timeReadDHT = 60000
 
                 -- Получение среднеарифмитического значения сенсора DHT
                 ---- Итерационная функция сбора показаний сенсора на pin
@@ -54,7 +51,7 @@ do
 
                         ---[[
                         if status == dht.OK then
-                            print(string.format("\t\tSensor pin: %g \tCycle: %g \ttemp: %g \thumi: %g \ttemp_dec: %g\thumi_dec: %g", pin, i, temp, humi, temp_dec, humi_dec))
+                            print(string.format("\t%g\tSensor pin: %g \tCycle: %g \ttemp: %g \thumi: %g \ttemp_dec: %g\thumi_dec: %g",tmr.time() , pin, i, temp, humi, temp_dec, humi_dec))
                         elseif status == dht.ERROR_CHECKSUM then
                             print("\tSensor read error: ERROR_CHECKSUM")
                         elseif status == dht.ERROR_TIMEOUT then
@@ -128,8 +125,17 @@ do
                 local readDHT = _readDHT(Sensor[sid].pin)
                 averDHT(readDHT, sid)    -- сразу получить значение сенсора
 
-                -- регистрация таймера периодического получения данных сенсора dht ()
-                tmr.create():alarm(timeReadDHT, tmr.ALARM_AUTO, function() averDHT(readDHT, sid) end)
+                -- Если нет публикации в MQTT, то создаем периодический опрос датчика, в противном случае это делает прpublishMQTT
+                if not (Config.mqtt and Config.mqtt.enable and Config.mqtt.server) then
+                    -- Интервал получений среднего значения измерений датчика (мс)
+                    -- local timeReadDHT = iterCount * readTime * 10    -- этот варинат или задать нужное значение
+                    local timeReadDHT = 60000
+
+                    print("\tDHT11 measurement time (ms) = " .. timeReadDHT)
+                    -- регистрация таймера периодического получения данных сенсора dht ()
+                    tmr.create():alarm(timeReadDHT, tmr.ALARM_AUTO, function() averDHT(readDHT, sid) end)
+                end
+
             end
 
         end
